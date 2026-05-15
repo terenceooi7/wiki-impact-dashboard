@@ -162,6 +162,8 @@ function checkPW(){
   if(val==='tdewiki'){
     document.getElementById('pw-gate').style.display='none';
     document.getElementById('main-content').style.display='block';
+loadFromSheets();
+setInterval(loadFromSheets, 5*60*1000);
   } else {
     document.getElementById('pw-err').textContent='Incorrect password. Try again.';
     document.getElementById('pw-input').value='';
@@ -729,8 +731,5 @@ async function loadFromSheets(){
 
 // ── INIT ─────────────────────────────────────────────────────────────────────
 renderTaskBoard();renderWI100Board();renderYTL();renderInvoices();renderBudget();updateRev();
-loadFromSheets();
-// auto-refresh every 5 minutes
-setInterval(loadFromSheets, 5*60*1000);
 </script>
 </div><!-- /main-content -->
