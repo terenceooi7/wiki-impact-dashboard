@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wiki Impact · Team Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ocean:#0a4a6e;--ocean-mid:#1a6a96;--ocean-light:#d6ecf7;
+  --reef:#1d7a5f;--reef-light:#d4f0e8;
+  --sand:#f5f0e8;--sand-dark:#e8e0d0;
+  --amber:#c97c2a;--amber-light:#fdf0dc;
+  --red:#c0392b;--red-light:#fde8e6;
+  --ink:#1a1a2e;--ink-mid:#3a3a5c;--ink-soft:#7a7a9a;
+  --white:#fff;--surface:#fafaf8;
+  --border:rgba(26,26,46,.1);--border-s:rgba(26,26,46,.2);
+  --radius:8px;--radius-lg:14px;
+  --ytl:#7b2fa0;--ytl-light:#f3eafc;
+  --wi:#1a56a0;--wi-light:#e6eefa;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;font-size:14px;background:var(--surface);color:var(--ink);min-height:100vh}
+.hdr{background:var(--ocean);color:#fff;padding:18px 28px 0;position:sticky;top:0;z-index:100;box-shadow:0 2px 20px rgba(10,74,110,.3)}
+.hdr-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px;gap:12px;flex-wrap:wrap}
+.hdr-title{font-family:'Instrument Serif',serif;font-size:20px;color:#fff}
+.hdr-title em{font-style:normal;color:rgba(255,255,255,.55);font-size:12px;display:block;font-family:'DM Sans',sans-serif;font-weight:300;letter-spacing:.05em;margin-bottom:3px}
+.hdr-meta{font-size:11px;color:rgba(255,255,255,.45);margin-top:3px}
+.metrics-strip{display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:rgba(255,255,255,.12);border-radius:var(--radius) var(--radius) 0 0;overflow:hidden}
+.mc{background:rgba(255,255,255,.07);padding:10px 12px;text-align:center}
+.mc .lbl{font-size:9px;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px}
+.mc .val{font-family:'DM Mono',monospace;font-size:16px;font-weight:500;color:#fff}
+.mc .sub{font-size:9px;color:rgba(255,255,255,.38);margin-top:2px}
+.tabs{display:flex;background:rgba(255,255,255,.07);border-top:.5px solid rgba(255,255,255,.12);overflow-x:auto}
+.tb{padding:10px 16px;border:none;background:none;color:rgba(255,255,255,.5);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;cursor:pointer;white-space:nowrap;border-bottom:2px solid transparent;transition:all .15s;letter-spacing:.03em}
+.tb:hover{color:rgba(255,255,255,.85)}
+.tb.active{color:#fff;border-bottom-color:#5bc8f0}
+.main{padding:22px 28px;max-width:1120px}
+.panel{display:none}.panel.active{display:block}
+.sec{font-size:10px;font-weight:500;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.08em;margin:22px 0 9px}
+.sec:first-child{margin-top:0}
+.pb{display:inline-flex;align-items:center;padding:2px 8px;border-radius:99px;font-size:10px;font-weight:600;letter-spacing:.04em;white-space:nowrap}
+.pb-undp{background:var(--ocean-light);color:var(--ocean)}
+.pb-ytl{background:var(--ytl-light);color:var(--ytl)}
+.pb-wi100{background:var(--wi-light);color:var(--wi)}
+.badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:99px;font-size:11px;font-weight:500;white-space:nowrap}
+.b-green{background:var(--reef-light);color:var(--reef)}
+.b-amber{background:var(--amber-light);color:var(--amber)}
+.b-red{background:var(--red-light);color:var(--red)}
+.b-blue{background:var(--ocean-light);color:var(--ocean)}
+.b-gray{background:var(--sand-dark);color:var(--ink-mid)}
+.b-purple{background:var(--ytl-light);color:var(--ytl)}
+.b-wi{background:var(--wi-light);color:var(--wi)}
+.av{width:24px;height:24px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:9px;font-weight:600;flex-shrink:0;font-family:'DM Mono',monospace}
+.av-T{background:var(--ocean-light);color:var(--ocean)}
+.av-D{background:#eeedf8;color:#5a52b0}
+.av-Iz{background:var(--amber-light);color:var(--amber)}
+.av-Ai{background:var(--reef-light);color:var(--reef)}
+.av-Am{background:var(--red-light);color:var(--red)}
+.av-X{background:var(--sand-dark);color:var(--ink-mid)}
+.card{background:#fff;border:.5px solid var(--border);border-radius:var(--radius-lg);margin-bottom:12px;overflow:hidden}
+.pills{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}
+.pill{padding:5px 13px;border-radius:99px;font-size:12px;font-weight:500;cursor:pointer;border:1.5px solid var(--border-s);background:#fff;color:var(--ink-mid);font-family:'DM Sans',sans-serif;transition:all .15s}
+.pill:hover{background:var(--sand)}
+.pill.active{font-weight:600}
+.pill-all.active{background:var(--ink);color:#fff;border-color:var(--ink)}
+.pill-undp.active{background:var(--ocean-light);color:var(--ocean);border-color:var(--ocean)}
+.pill-ytl.active{background:var(--ytl-light);color:var(--ytl);border-color:var(--ytl)}
+.pill-wi100.active{background:var(--wi-light);color:var(--wi);border-color:var(--wi)}
+.wk-hdr{display:flex;align-items:center;gap:9px;padding:8px 16px;background:var(--sand);border-bottom:.5px solid var(--border);font-size:11px;font-weight:500;color:var(--ink-mid)}
+.wk-bar-w{width:50px;height:3px;background:var(--sand-dark);border-radius:99px;overflow:hidden;flex-shrink:0}
+.wk-bar{height:100%;border-radius:99px;background:var(--ocean-mid)}
+.wk-range{font-size:10px;color:var(--ink-soft);margin-left:auto;font-family:'DM Mono',monospace}
+.task-row{display:flex;align-items:center;gap:8px;padding:8px 16px;border-bottom:.5px solid var(--border);cursor:pointer;transition:background .1s}
+.task-row:last-child{border-bottom:none}
+.task-row:hover{background:var(--sand)}
+.chk{width:15px;height:15px;border-radius:4px;border:1.5px solid var(--border-s);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:9px;color:#fff;transition:all .15s}
+.chk.done{background:var(--reef);border-color:var(--reef)}
+.task-text{flex:1;font-size:13px;line-height:1.35}
+.task-text.done{text-decoration:line-through;color:var(--ink-soft)}
+.avs{display:flex;gap:2px;flex-shrink:0}
+.ms-row{display:flex;gap:12px;padding:14px 18px;border-bottom:.5px solid var(--border);align-items:flex-start}
+.ms-row:last-child{border-bottom:none}
+.ms-num{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:12px;font-weight:500;flex-shrink:0}
+.ms-active{background:var(--ocean-light);color:var(--ocean)}
+.ms-done{background:var(--reef-light);color:var(--reef)}
+.ms-wait{background:var(--sand-dark);color:var(--ink-soft)}
+.ms-body{flex:1}
+.ms-title{font-weight:500;font-size:13px;margin-bottom:2px}
+.ms-amount{font-family:'DM Mono',monospace;font-size:16px;color:var(--reef);margin-bottom:4px}
+.ms-detail{font-size:12px;color:var(--ink-soft);line-height:1.55;margin-bottom:7px}
+.inv-row{display:flex;align-items:center;gap:9px;padding:10px 18px;border-bottom:.5px solid var(--border)}
+.inv-row:last-child{border-bottom:none}
+.inv-desc{flex:1}
+.inv-desc strong{display:block;font-size:13px;font-weight:500}
+.inv-desc span{font-size:11px;color:var(--ink-soft)}
+.inv-amt{font-family:'DM Mono',monospace;font-size:13px;font-weight:500;white-space:nowrap}
+.rm-btn{width:20px;height:20px;border-radius:50%;border:.5px solid var(--border);background:none;cursor:pointer;color:var(--ink-soft);font-size:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.rm-btn:hover{background:var(--red-light);color:var(--red);border-color:var(--red)}
+.bgt-row{display:flex;align-items:center;gap:11px;padding:10px 18px;border-bottom:.5px solid var(--border)}
+.bgt-row:last-child{border-bottom:none}
+.bgt-lbl{width:190px;flex-shrink:0;font-size:12px;font-weight:500}
+.bgt-sub{font-size:10px;color:var(--ink-soft);font-weight:400;display:block}
+.bar-w{flex:1;height:6px;background:var(--sand-dark);border-radius:99px;overflow:hidden}
+.bar-f{height:100%;border-radius:99px;background:var(--ocean-mid);transition:width .4s}
+.bar-f.warn{background:var(--amber)}.bar-f.over{background:var(--red)}
+.bgt-nums{font-family:'DM Mono',monospace;font-size:11px;color:var(--ink-soft);text-align:right;width:130px;flex-shrink:0}
+.evt-row{display:flex;gap:12px;padding:14px 18px;border-bottom:.5px solid var(--border);align-items:flex-start}
+.evt-row:last-child{border-bottom:none}
+.evt-dot{width:9px;height:9px;border-radius:50%;background:var(--ytl);flex-shrink:0;margin-top:4px}
+.evt-body{flex:1}
+.evt-title{font-weight:500;font-size:13px;margin-bottom:3px}
+.evt-dates{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:5px}
+.evt-date{font-size:11px;color:var(--ink-soft)}
+.evt-date strong{color:var(--ink-mid);font-weight:500}
+.del-row{display:flex;align-items:flex-start;gap:10px;padding:11px 18px;border-bottom:.5px solid var(--border)}
+.del-row:last-child{border-bottom:none}
+.del-no{font-family:'DM Mono',monospace;font-size:11px;color:var(--ink-soft);width:20px;flex-shrink:0;padding-top:1px}
+.del-body{flex:1}
+.del-title{font-size:13px;font-weight:500;margin-bottom:2px}
+.del-sub{font-size:11px;color:var(--ink-soft);line-height:1.5}
+.del-amt{font-family:'DM Mono',monospace;font-size:13px;color:var(--wi);font-weight:500;white-space:nowrap}
+.ov-tbl{width:100%;border-collapse:collapse;font-size:12px}
+.ov-tbl th{text-align:left;padding:7px 12px;border-bottom:.5px solid var(--border);font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-soft);font-weight:500;background:var(--sand)}
+.ov-tbl td{padding:9px 12px;border-bottom:.5px solid var(--border);vertical-align:middle}
+.ov-tbl tr:last-child td{border-bottom:none}
+.total-row td{background:var(--sand);font-weight:600}
+.add-form{display:flex;flex-wrap:wrap;gap:6px;padding:10px 16px;background:var(--sand);border-top:.5px solid var(--border);align-items:center}
+.add-form input,.add-form select{font-family:'DM Sans',sans-serif;font-size:13px;padding:5px 8px;border:.5px solid var(--border-s);border-radius:var(--radius);background:#fff;color:var(--ink)}
+.add-form input{flex:1;min-width:120px}
+.btn{padding:5px 12px;border-radius:var(--radius);border:.5px solid var(--border-s);background:#fff;color:var(--ink);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;cursor:pointer;transition:background .1s}
+.btn:hover{background:var(--sand)}
+.btn-p{background:var(--ocean);color:#fff;border-color:var(--ocean)}.btn-p:hover{background:var(--ocean-mid)}
+.btn-sm{font-size:11px;padding:2px 9px}
+.alert{background:var(--amber-light);border:.5px solid var(--amber);border-radius:var(--radius-lg);padding:11px 16px;margin-bottom:12px;font-size:12px;color:#6b4200;line-height:1.6}
+.alert-red{background:var(--red-light);border:.5px solid var(--red);border-radius:var(--radius-lg);padding:11px 16px;margin-bottom:12px;font-size:12px;color:#7a1a1a;line-height:1.6}
+.info-box{background:#fff;border:.5px solid var(--border);border-radius:var(--radius-lg);padding:14px 18px;margin-bottom:12px}
+.info-box h3{font-size:13px;font-weight:500;color:var(--ocean);margin-bottom:8px}
+.info-box p,.info-box li{font-size:12px;color:var(--ink-mid);line-height:1.7}
+.info-box ol,.info-box ul{padding-left:16px;margin-top:5px}
+.code{background:var(--ink);color:#a8d8a8;font-family:'DM Mono',monospace;font-size:11px;padding:10px 14px;border-radius:var(--radius);margin:8px 0;white-space:pre;overflow-x:auto;line-height:1.6}
+.empty-state{padding:18px;text-align:center;color:var(--ink-soft);font-size:13px}
+<style>
+#pw-gate{position:fixed;inset:0;background:var(--ocean);display:flex;align-items:center;justify-content:center;z-index:9999;flex-direction:column;gap:16px}
+#pw-gate h2{font-family:'Instrument Serif',serif;font-size:26px;color:#fff;text-align:center}
+#pw-gate p{font-size:13px;color:rgba(255,255,255,.6);text-align:center}
+#pw-gate input{padding:10px 16px;border-radius:8px;border:none;font-size:15px;width:220px;text-align:center;font-family:'DM Sans',sans-serif;letter-spacing:.1em}
+#pw-gate button{padding:9px 28px;border-radius:8px;border:none;background:#fff;color:var(--ocean);font-weight:600;font-size:14px;cursor:pointer;font-family:'DM Sans',sans-serif}
+#pw-gate .err{color:#f8a4a4;font-size:12px;height:16px}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div class="hdr-top">
+    <div>
+      <div class="hdr-title"><em>Wiki Impact PLT · Team Dashboard · 2026–2027</em>Tasks & Schedule</div>
+      <div class="hdr-meta">UNDP Reef Health &nbsp;&middot;&nbsp; YTL Ilmu Fellowship &nbsp;&middot;&nbsp; WI100 Yayasan Petronas</div>
+    </div>
+    <div id="sync-badge" style="font-size:11px;color:rgba(255,255,255,.4);padding-top:4px">&bull; Loading...</div>
+  </div>
+  <div class="metrics-strip" style="grid-template-columns:repeat(3,1fr)">
+    <div class="mc"><div class="lbl">Active projects</div><div class="val">3</div><div class="sub">UNDP &middot; YTL &middot; WI100</div></div>
+    <div class="mc"><div class="lbl">Tasks done</div><div class="val" id="hdr-tasks">0/46</div><div class="sub" id="hdr-pct">0% complete</div></div>
+    <div class="mc"><div class="lbl">Next YTL event</div><div class="val" style="font-size:12px;padding-top:4px">7 Jul</div><div class="sub">Launch Event</div></div>
+  </div>
+  <div class="tabs">
+    <button class="tb active" onclick="switchTab('tasks')">Tasks</button>
+    <button class="tb" onclick="switchTab('ytl')">YTL Schedule</button>
+  </div>
+</div>
+
+<div class="main">
+
+<!-- TASKS -->
+<div class="panel active" id="tab-tasks">
+  <div class="pills" id="task-pills">
+    <button class="pill pill-all active" onclick="filterTasks('all')">All projects</button>
+    <button class="pill pill-undp" onclick="filterTasks('undp')">&#127827; UNDP</button>
+    <button class="pill pill-ytl" onclick="filterTasks('ytl')">&#10022; YTL</button>
+    <button class="pill pill-wi100" onclick="filterTasks('wi100')">&#9733; WI100</button>
+  </div>
+  <div id="task-board"></div>
+</div>
+
+<!-- YTL SCHEDULE -->
+<div class="panel" id="tab-ytl">
+  <div class="sec">Ilmu Fellowship — event & deliverable schedule</div>
+  <div class="card" style="padding:0" id="ytl-full-sched"></div>
+  <div class="sec">Deliverable rules</div>
+  <div class="card">
+    <table class="ov-tbl">
+      <thead><tr><th>Rule</th><th>Detail</th></tr></thead>
+      <tbody>
+        <tr><td><strong>First draft</strong></td><td><strong>5 working days</strong> after event</td></tr>
+        <tr><td><strong>Post live</strong></td><td>Within 7 days of client approval</td></tr>
+        <tr><td><strong>Geography</strong></td><td>Klang Valley only</td></tr>
+        <tr><td><strong>IP / posting</strong></td><td>Raw BTS footage &rarr; YTL &middot; Reels posted @wikiimpact + collaborative tag @YTLFoundation</td></tr>
+        <tr><td><strong>Half-day events</strong></td><td>1x reel &middot; 10x IG stories &middot; Max 4 hrs on site</td></tr>
+        <tr><td><strong>Multi-day retreats</strong></td><td>1x reel &middot; 20x IG stories &middot; Max 2 days on site</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+</div>
+
+<script>
+const SHEETS_TASKS_URL="https://docs.google.com/spreadsheets/d/e/2PACX-1vTU5Q37siToCDiPufz5NzNeyoShMMivF5PqPa4B8lg0nZi4Ir-ZfQZiOR8tZNf2DwnupAcXNVKKT-K8/pub?gid=0&single=true&output=csv";
+const SHEETS_YTL_URL="https://docs.google.com/spreadsheets/d/e/2PACX-1vTU5Q37siToCDiPufz5NzNeyoShMMivF5PqPa4B8lg0nZi4Ir-ZfQZiOR8tZNf2DwnupAcXNVKKT-K8/pub?gid=544565562&single=true&output=csv";
+
+let ytlEvents=[
+  {name:"Launch Event",event:"2026-07-07",invoice:"2026-05-07",pay:"2026-06-07",draft:"2026-07-14",amount:3750,stories:10,maxTime:"4 hrs",invStatus:"Not sent",delStatus:"Pending",quote:"What is Ilmu Fellowship? / Why does this matter right now?"},
+  {name:"GSR Retreat",event:"2026-12-02",invoice:"2026-10-02",pay:"2026-11-02",draft:"2026-12-09",amount:9000,stories:20,maxTime:"2 days",invStatus:"Not sent",delStatus:"Pending",quote:"What\'s one idea or insight that really challenged your thinking?"},
+  {name:"Adaptive Leadership Retreat",event:"2027-01-28",invoice:"2026-11-28",pay:"2026-12-28",draft:"2027-02-04",amount:9000,stories:20,maxTime:"2 days",invStatus:"Not sent",delStatus:"Pending",quote:"What\'s one leadership lesson here that stretched you?"},
+  {name:"Initiatives Showcase Day",event:"2027-05-06",invoice:"2027-03-06",pay:"2027-04-06",draft:"2027-05-13",amount:3750,stories:10,maxTime:"4 hrs",invStatus:"Not sent",delStatus:"Pending",quote:"What kind of change do you think these initiatives can create?"},
+  {name:"Celebratory Post",event:"2027-07-08",invoice:"2027-05-08",pay:"2027-06-08",draft:"2027-07-15",amount:3750,stories:10,maxTime:"4 hrs",invStatus:"Not sent",delStatus:"Pending",quote:"Looking back, what\'s been the most meaningful moment?"},
+];
+
+const WEEKS=[
+  {proj:"undp",week:"Wk 1-2",range:"15-30 May",tasks:[
+    {id:"u1",text:"Grant agreement signed - Persatuan Pendidikan Diversiti",assign:["T"],ph:"Admin"},
+    {id:"u2",text:"Focal point name, contact & email provided to UNDP (Block 8)",assign:["T"],ph:"Admin"},
+    {id:"u3",text:"Kick off meeting - brief full team on UNDP project",assign:["T","D"],ph:"Admin"},
+    {id:"u4",text:"Assign Amanda role & KPIs for Phase 1",assign:["T"],ph:"Admin"},
+    {id:"u5",text:"Stakeholder mapping - identify all interview subjects",assign:["T","D","Iz"],ph:"Phase 1"},
+    {id:"u6",text:"Izzah: compile secondary sources on reef data",assign:["Iz"],ph:"Phase 1"},
+  ]},
+  {proj:"ytl",week:"May URGENT",range:"Issue NOW",tasks:[
+    {id:"y1",text:"Issue Launch Event invoice to YTL Foundation - OVERDUE",assign:["T"],ph:"Invoice"},
+    {id:"y2",text:"Brief Izzah & Aine on Launch Event content plan (7 Jul)",assign:["T","Iz","Ai"],ph:"Prep"},
+    {id:"y3",text:"Confirm event logistics with YTL - schedule, access, dress code",assign:["T"],ph:"Prep"},
+  ]},
+  {proj:"undp",week:"Wk 3-4",range:"1-15 Jun",tasks:[
+    {id:"u7",text:"Desk research on reef degradation complete",assign:["D","Iz"],ph:"Phase 1"},
+    {id:"u8",text:"Draft interview guides (gender & culturally sensitive)",assign:["D"],ph:"Phase 1"},
+    {id:"u9",text:"Amanda: begin scheduling pre-scoping calls",assign:["Am"],ph:"Phase 1"},
+    {id:"u10",text:"Issue freelance briefs: web dev, data viz designer, copywriter",assign:["T"],ph:"Procurement"},
+  ]},
+  {proj:"undp",week:"Wk 5-6",range:"16-30 Jun",tasks:[
+    {id:"u11",text:"Pre-scoping calls complete & site permissions secured",assign:["T","D"],ph:"Phase 1"},
+    {id:"u12",text:"Interview guides finalised & reviewed",assign:["D"],ph:"Phase 1"},
+    {id:"u13",text:"Freelancers confirmed: web dev, data viz, copywriter",assign:["T"],ph:"Procurement"},
+    {id:"u14",text:"Submit Tranche 1 inception report to UNDP",assign:["T","D"],ph:"Admin"},
+  ]},
+  {proj:"ytl",week:"7 Jul",range:"Launch Event",tasks:[
+    {id:"y4",text:"Attend Launch Event (max 4 hrs) - capture reel & 10x IG stories",assign:["Iz","Ai"],ph:"Event"},
+    {id:"y5",text:"First draft reel + stories to YTL by 14 Jul (5 working days)",assign:["Iz","Ai"],ph:"Deliverable"},
+  ]},
+  {proj:"undp",week:"Wk 7-10",range:"Jul-Aug",tasks:[
+    {id:"u15",text:"Fieldwork Trip 1: Pulau Redang",assign:["X"],ph:"Phase 2"},
+    {id:"u16",text:"Fieldwork Trip 2: Pulau Sipadan",assign:["X"],ph:"Phase 2"},
+    {id:"u17",text:"Fieldwork Trip 3: Pulau Langkawi / Tengah",assign:["X"],ph:"Phase 2"},
+    {id:"u18",text:"Data viz wireframes + microsite architecture",assign:["X"],ph:"Phase 3"},
+    {id:"u19",text:"Deborah: begin Part 1 first draft",assign:["D"],ph:"Phase 3"},
+    {id:"u20",text:"Submit Tranche 2 mid-production report to UNDP",assign:["T","D"],ph:"Admin"},
+  ]},
+  {proj:"ytl",week:"2-5 Dec",range:"GSR Retreat",tasks:[
+    {id:"y9",text:"Attend GSR Retreat (max 2 days) - reel + 20x stories",assign:["Iz","Ai"],ph:"Event"},
+    {id:"y10",text:"First draft GSR content to YTL by 9 Dec (5 working days)",assign:["Iz","Ai"],ph:"Deliverable"},
+  ]},
+  {proj:"undp",week:"Wk 13-18",range:"Sep-Oct",tasks:[
+    {id:"u21",text:"Video rough cuts produced (2 short-form videos)",assign:["X"],ph:"Phase 3"},
+    {id:"u22",text:"Deborah: Parts 2 & 3 drafts complete",assign:["D"],ph:"Phase 3"},
+    {id:"u23",text:"Microsite build complete (mobile-optimised, SEO)",assign:["X"],ph:"Phase 3"},
+    {id:"u24",text:"UNDP & EU content review - submit all drafts",assign:["T","D"],ph:"Admin"},
+    {id:"u25",text:"Izzah: Instagram content calendar drafted",assign:["Iz"],ph:"Phase 4"},
+    {id:"u26",text:"Aine: TikTok content calendar drafted (BM)",assign:["Ai"],ph:"Phase 4"},
+  ]},
+  {proj:"undp",week:"Wk 19-26",range:"Nov-Dec",tasks:[
+    {id:"u27",text:"Microsite goes live",assign:["X","T"],ph:"Phase 4"},
+    {id:"u28",text:"Instagram campaign launched",assign:["Iz"],ph:"Phase 4"},
+    {id:"u29",text:"TikTok BM campaign launched",assign:["Ai"],ph:"Phase 4"},
+    {id:"u30",text:"Paid ads activated (Meta / TikTok)",assign:["T"],ph:"Phase 4"},
+    {id:"u31",text:"Amanda: weekly engagement monitoring",assign:["Am"],ph:"Phase 4"},
+  ]},
+];
+
+const WI100_PHASES=[
+  {phase:"Nominations (Jun-Jul)",range:"Jun-Jul 2026",tasks:[
+    {id:"w3",text:"Announce WI100 x YP partnership - press release + social posts",assign:["T","D"],ph:"Launch"},
+    {id:"w4",text:"Open nominations - website, IG, LinkedIn coverage plan",assign:["T","Iz"],ph:"Launch"},
+    {id:"w5",text:"Plan & schedule nomination series (IG stories, LinkedIn posts)",assign:["Iz","Am"],ph:"Social"},
+    {id:"w6",text:"Contact 300 previous WI100 changemakers - request nominations",assign:["Am","D"],ph:"Outreach"},
+    {id:"w7",text:"Website banners live - 2x YP banner ad placements",assign:["T"],ph:"Deliverable"},
+    {id:"w8",text:"Get 5 YP Changemakers in Action names from YP/iProspect",assign:["T"],ph:"YP Extra"},
+  ]},
+  {phase:"Vetting, research & scoring (Jun-Aug)",range:"Jun-Aug 2026",tasks:[
+    {id:"w9",text:"Create scoring matrix for candidate vetting",assign:["D","Am"],ph:"Research"},
+    {id:"w10",text:"Vet, review, contact and research all candidates",assign:["D","Am"],ph:"Research"},
+    {id:"w11",text:"Profile write-up & fact-check for >100 names",assign:["D","Am"],ph:"Writing"},
+    {id:"w12",text:"Interview 5 YP Changemakers in Action + write profiles",assign:["D","Iz"],ph:"YP Extra"},
+  ]},
+  {phase:"Judging panel (Jul-Oct)",range:"Jul-Oct 2026",tasks:[
+    {id:"w13",text:"Identify & contact judging panel candidates",assign:["T","D"],ph:"Judging"},
+    {id:"w14",text:"Confirm 1 YP representative on judging panel",assign:["T"],ph:"Judging"},
+    {id:"w15",text:"Confirm 15 YP-nominated names in candidate pool",assign:["T","Am"],ph:"Judging"},
+    {id:"w16",text:"Prepare judging deck & documents for panel",assign:["D","Am"],ph:"Judging"},
+    {id:"w17",text:"Arrange roundtable session with judges",assign:["T"],ph:"Judging"},
+    {id:"w18",text:"Compile & summarise judges feedback",assign:["D","Am"],ph:"Judging"},
+    {id:"w19",text:"Finalise 100 names",assign:["T","D"],ph:"Judging"},
+    {id:"w20",text:"Get consent from all 100 selected candidates",assign:["Am"],ph:"Judging"},
+  ]},
+  {phase:"YP Reel - Puan Nelly (Oct-Nov)",range:"Oct-Nov 2026",tasks:[
+    {id:"w21",text:"Decide storyline & messaging for YP Reel",assign:["T","D"],ph:"YP Reel"},
+    {id:"w22",text:"In-person shoot & interview with Puan Nelly",assign:["Iz","Ai"],ph:"YP Reel"},
+    {id:"w23",text:"Edit YP Reel (2x YP reps featured) - ready for Nov publish",assign:["Iz","Ai"],ph:"YP Reel"},
+  ]},
+  {phase:"Announce & publish (Nov)",range:"Nov 2026",tasks:[
+    {id:"w24",text:"Press releases issued (YP brand mention - circulated to all media)",assign:["D","T"],ph:"Announce"},
+    {id:"w25",text:"5x social media posts with YP brand mention on final swipe",assign:["Iz"],ph:"Announce"},
+    {id:"w26",text:"Publish YP Reel on social media",assign:["Iz","Ai"],ph:"Announce"},
+    {id:"w27",text:"Website banners updated - WI100 2026 candidates + YP partnership",assign:["T"],ph:"Announce"},
+    {id:"w28",text:"YP Changemakers in Action special category published on site",assign:["D"],ph:"Announce"},
+  ]},
+];
+
+let taskState={},taskFilter="all";
+WEEKS.forEach(w=>w.tasks.forEach(t=>taskState[t.id]=false));
+WI100_PHASES.forEach(p=>p.tasks.forEach(t=>taskState[t.id]=false));
+
+const avMap={T:{c:"av-T",l:"TO"},D:{c:"av-D",l:"DC"},Iz:{c:"av-Iz",l:"Iz"},Ai:{c:"av-Ai",l:"Ai"},Am:{c:"av-Am",l:"Am"},X:{c:"av-X",l:"Ext"}};
+function avEl(k){const a=avMap[k]||avMap.X;return`<div class="av ${a.c}" title="${k}">${a.l}</div>`;}
+
+const phClr={Admin:"b-purple","Phase 1":"b-blue","Phase 2":"b-amber","Phase 3":"b-gray","Phase 4":"b-green",Procurement:"b-gray",Invoice:"b-red",Event:"b-purple",Deliverable:"b-green",Prep:"b-blue",Launch:"b-wi",Social:"b-wi",Outreach:"b-blue",Research:"b-blue",Writing:"b-blue","YP Extra":"b-purple",Judging:"b-amber","YP Reel":"b-purple",Announce:"b-green"};
+function phBadge(p){return`<span class="badge ${phClr[p]||'b-gray'}" style="font-size:10px">${p}</span>`;}
+
+function fmtDate(s){if(!s)return'—';const d=new Date(s+'T00:00:00');return d.toLocaleDateString('en-MY',{day:'numeric',month:'short',year:'2-digit'});}
+function daysDiff(s){const n=new Date();n.setHours(0,0,0,0);return Math.round((new Date(s+'T00:00:00')-n)/86400000);}
+
+function renderTaskBoard(){
+  let total=0,done=0;
+  WEEKS.forEach(w=>w.tasks.forEach(t=>{total++;if(taskState[t.id])done++;}));
+  WI100_PHASES.forEach(p=>p.tasks.forEach(t=>{total++;if(taskState[t.id])done++;}));
+  document.getElementById('hdr-tasks').textContent=`${done}/${total}`;
+  document.getElementById('hdr-pct').textContent=`${Math.round(done/total*100)}% complete`;
+  const f=taskFilter;
+  let html='';
+  if(f==='all'||f==='undp'||f==='ytl'){
+    WEEKS.filter(w=>f==='all'||w.proj===f).forEach(w=>{
+      const wd=w.tasks.filter(t=>taskState[t.id]).length;
+      const pct=Math.round(wd/w.tasks.length*100);
+      const pb=w.proj==='undp'?'<span class="pb pb-undp">UNDP</span>':'<span class="pb pb-ytl">YTL</span>';
+      html+=`<div class="card" style="margin-bottom:11px"><div class="wk-hdr">${pb}&nbsp;<span style="font-size:12px;font-weight:500;color:var(--ink)">${w.week}</span><span style="color:var(--ink-soft);font-size:11px">${wd}/${w.tasks.length}</span><div class="wk-bar-w"><div class="wk-bar" style="width:${pct}%"></div></div><span class="wk-range">${w.range}</span></div>`;
+      w.tasks.forEach(t=>{const d=taskState[t.id];html+=`<div class="task-row" onclick="toggle('${t.id}')"><div class="chk ${d?'done':''}">${d?'✓':''}</div><div class="task-text ${d?'done':''}">${t.text}</div>${phBadge(t.ph)}<div class="avs">${t.assign.map(avEl).join('')}</div></div>`;
+      });
+      html+='</div>';
+    });
+  }
+  if(f==='all'||f==='wi100'){
+    WI100_PHASES.forEach(ph=>{
+      const pd=ph.tasks.filter(t=>taskState[t.id]).length;
+      const pct=Math.round(pd/ph.tasks.length*100);
+      html+=`<div class="card" style="margin-bottom:11px"><div class="wk-hdr"><span class="pb pb-wi100">WI100</span>&nbsp;<span style="font-size:12px;font-weight:500;color:var(--ink)">${ph.phase}</span><span style="color:var(--ink-soft);font-size:11px">${pd}/${ph.tasks.length}</span><div class="wk-bar-w"><div class="wk-bar" style="width:${pct}%;background:var(--wi)"></div></div><span class="wk-range">${ph.range}</span></div>`;
+      ph.tasks.forEach(t=>{const d=taskState[t.id];html+=`<div class="task-row" onclick="toggle('${t.id}')"><div class="chk ${d?'done':''}">${d?'✓':''}</div><div class="task-text ${d?'done':''}">${t.text}</div>${phBadge(t.ph)}<div class="avs">${t.assign.map(avEl).join('')}</div></div>`;
+      });
+      html+='</div>';
+    });
+  }
+  document.getElementById('task-board').innerHTML=html||'<div class="empty-state">No tasks.</div>';
+}
+
+function toggle(id){taskState[id]=!taskState[id];renderTaskBoard();}
+
+function filterTasks(f){
+  taskFilter=f;
+  document.querySelectorAll('#task-pills .pill').forEach(b=>{
+    const cls=b.className.split(' ').filter(c=>!c.includes('active')).join(' ');
+    b.className=cls+(b.onclick.toString().includes(`'${f}'`)?' active':'');
+  });
+  renderTaskBoard();
+}
+
+function renderYTL(){
+  const db={Pending:'b-gray','Draft sent':'b-amber',Approved:'b-blue',Posted:'b-green'};
+  let html='';
+  ytlEvents.forEach((ev,i)=>{
+    const evDiff=daysDiff(ev.event);
+    const upcoming=evDiff>=0&&evDiff<=30;
+    html+=`<div class="evt-row">
+      <div class="evt-dot" style="${evDiff<0?'background:var(--ink-soft)':''}"></div>
+      <div class="evt-body">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px">
+          <div class="evt-title">${i+1}. ${ev.name}</div>
+          ${upcoming?'<span class="badge b-amber">Coming up</span>':evDiff<0?'<span class="badge b-gray">Done</span>':''}
+        </div>
+        <div class="evt-dates">
+          <div class="evt-date">&#128197; <strong>Event:</strong> ${fmtDate(ev.event)}</div>
+          <div class="evt-date">&#128203; <strong>Draft due:</strong> ${fmtDate(ev.draft)}</div>
+        </div>
+        <div style="font-size:12px;color:var(--ink-soft);margin-bottom:6px">1x reel &middot; ${ev.stories}x IG stories &middot; Max ${ev.maxTime} &middot; <em>"${ev.quote}"</em></div>
+        <div style="display:flex;gap:6px">
+          <span style="font-size:11px;color:var(--ink-soft)">Status:</span>
+          <span class="badge ${db[ev.delStatus]||'b-gray'}">${ev.delStatus}</span>
+        </div>
+      </div>
+    </div>`;
+  });
+  const el=document.getElementById('ytl-full-sched');
+  if(el) el.innerHTML=html;
+}
+
+function switchTab(name){
+  document.querySelectorAll('.tb').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelector(`.tb[onclick*="'${name}'"]`).classList.add('active');
+  document.getElementById(`tab-${name}`).classList.add('active');
+}
+
+function parseCSV(text){
+  const lines=text.trim().split('\n');
+  const headers=lines[0].split(',').map(h=>h.replace(/"/g,'').trim());
+  return lines.slice(1).map(line=>{
+    const cols=[];let cur='',inQ=false;
+    for(let i=0;i<line.length;i++){const ch=line[i];if(ch==='"'){inQ=!inQ;}else if(ch===','&&!inQ){cols.push(cur.trim());cur='';}else cur+=ch;}
+    cols.push(cur.trim());
+    const obj={};headers.forEach((h,i)=>obj[h]=cols[i]||'');return obj;
+  });
+}
+
+async function loadFromSheets(){
+  const badge=document.getElementById('sync-badge');
+  badge.textContent='&#9679; Syncing...';
+  let ok=true;
+  if(SHEETS_TASKS_URL){
+    try{
+      const res=await fetch(SHEETS_TASKS_URL);
+      const rows=parseCSV(await res.text());
+      rows.forEach(row=>{
+        const done=(row['Done']||'').toUpperCase()==='TRUE';
+        const id=(row['ID']||'').trim();
+        if(id && taskState.hasOwnProperty(id)){
+          taskState[id]=done;
+        }
+      });
+      renderTaskBoard();
+    }catch(e){ok=false;}
+  }
+  if(SHEETS_YTL_URL){
+    try{
+      const res=await fetch(SHEETS_YTL_URL);
+      const rows=parseCSV(await res.text());
+      rows.forEach(row=>{
+        const ev=ytlEvents.find(e=>e.name===row['EventName']);
+        if(ev){
+          if(row['EventDate']) ev.event=row['EventDate'];
+          if(row['DraftDue'])  ev.draft=row['DraftDue'];
+          if(row['DeliverableStatus']) ev.delStatus=row['DeliverableStatus'];
+        }
+      });
+      renderYTL();
+    }catch(e){ok=false;}
+  }
+  badge.textContent=ok?'&#9679; Synced &#10003;':'&#9679; Sync error';
+  badge.style.color=ok?'#5bc8f0':'#f8a4a4';
+}
+
+renderTaskBoard();
+renderYTL();
+loadFromSheets();
+setInterval(loadFromSheets,5*60*1000);
+</script>
+</body>
+</html>
