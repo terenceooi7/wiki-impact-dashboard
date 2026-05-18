@@ -73,6 +73,9 @@ body{font-family:'DM Sans',sans-serif;font-size:14px;background:var(--surface);c
 .pill-undp.active{background:var(--ocean-light);color:var(--ocean);border-color:var(--ocean)}
 .pill-ytl.active{background:var(--ytl-light);color:var(--ytl);border-color:var(--ytl)}
 .pill-wi100.active{background:var(--wi-light);color:var(--wi);border-color:var(--wi)}
+  --mat:#1a6e3a;--mat-light:#e0f5e9;
+.pb-mat{background:var(--mat-light);color:var(--mat)}
+.pill-mat.active{background:var(--mat-light);color:var(--mat);border-color:var(--mat)}
 .up-section{margin-bottom:14px}
 .up-section-hdr{display:flex;align-items:center;gap:8px;padding:6px 0;font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft)}
 .up-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
@@ -222,6 +225,7 @@ body{font-family:'DM Sans',sans-serif;font-size:14px;background:var(--surface);c
     <button class="pill pill-undp" onclick="filterTasks('undp')">&#127827; UNDP</button>
     <button class="pill pill-ytl" onclick="filterTasks('ytl')">&#10022; YTL</button>
     <button class="pill pill-wi100" onclick="filterTasks('wi100')">&#9733; WI100</button>
+    <button class="pill pill-mat" onclick="filterTasks('mat')">◆ MAT</button>
   </div>
   <div id="task-board"><div class="loading-state">Syncing tasks from Sheets...</div></div>
 </div>
